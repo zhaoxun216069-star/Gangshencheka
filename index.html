@@ -12929,22 +12929,109 @@ function drawArchiveKV(ctx,x,y,label,value,width){ctx.fillStyle='#8a6c4c';ctx.fo
 function drawArchiveLines(ctx,x,y,width,lines,lineHeight=24,maxLines=999){ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';let count=0;for(const line of lines){if(count>=maxLines)break;const wrapped=wrapCanvasText(ctx,line,width,2);for(const row of wrapped){ctx.fillText(row,x,y);y+=lineHeight;count++;if(count>=maxLines)break}}return y}
 function drawArchiveStatGrid(ctx,x,y,w,items,cols=4){const gap=10,cellW=(w-gap*(cols-1))/cols,cellH=74;items.forEach((item,idx)=>{const col=idx%cols,row=Math.floor(idx/cols),cx=x+col*(cellW+gap),cy=y+row*(cellH+gap);drawRoundRect(ctx,cx,cy,cellW,cellH,12,'#fffdf7','#d2c1a3');ctx.fillStyle='#8a6c4c';ctx.font='600 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(item[0],cx+12,cy+24);ctx.fillStyle='#2a2118';ctx.font='700 28px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(String(item[1]),cx+12,cy+56)});return y+Math.ceil(items.length/cols)*(cellH+gap)-gap}
 function drawArchiveImageCard(ctx,x,y,w,h,title,subtitle,src){let innerY=drawArchiveBox(ctx,x,y,w,h,title);const imgX=x+18,imgY=innerY+4,imgW=w-36,imgH=h-(imgY-y)-46;drawRoundRect(ctx,imgX,imgY,imgW,imgH,14,'#efe4cf','#c6b18f');if(src){return loadArchiveImage(src).then(img=>{const ratio=Math.min(imgW/img.width,imgH/img.height);const dw=img.width*ratio,dh=img.height*ratio,dx=imgX+(imgW-dw)/2,dy=imgY+(imgH-dh)/2;ctx.drawImage(img,dx,dy,dw,dh);ctx.fillStyle='#5e4735';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(subtitle||'',x+18,y+h-16)}).catch(()=>{ctx.fillStyle='#8a6c4c';ctx.font='600 18px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('图像载入失败',imgX+18,imgY+38);ctx.fillStyle='#5e4735';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(subtitle||'',x+18,y+h-16)})}ctx.fillStyle='#8a6c4c';ctx.font='600 18px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('未附加图像',imgX+18,imgY+38);ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(subtitle||'',x+18,y+h-16);return Promise.resolve()}
-async function buildArchiveCanvas(){const summary=archiveSummary(),c=summary.calc;const width=1400,canvas=document.createElement('canvas');const measure=canvas.getContext('2d');measure.font='500 17px \"Microsoft YaHei\", \"Noto Sans SC\", sans-serif';const storyPairs=[['背景概述',state.meta.summary||'尚未填写'],['详细信息',state.meta.background||'尚未填写']];const storyRows=storyPairs.map(([label,value])=>wrapCanvasText(measure,value,1240,3000));const storyHeight=Math.max(180,storyRows.reduce((sum,rows)=>sum+64+rows.length*27,0)+30);const servantsForArchive=state.servants.slice(0,20),servantAppendHeight=servantsForArchive.length?105+Math.ceil(servantsForArchive.length/2)*176:0;const height=2000+storyHeight+servantAppendHeight;canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#efe4d3';ctx.fillRect(0,0,width,height);ctx.fillStyle='#f8f2e7';ctx.fillRect(24,24,width-48,height-48);ctx.strokeStyle='#a68d6f';ctx.lineWidth=2;ctx.strokeRect(24,24,width-48,height-48);ctx.fillStyle='#4e3828';ctx.font='700 42px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('钢神白卡 · 角色档案总览',52,84);ctx.font='500 18px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillStyle='#7b6249';ctx.fillText(`FILE · ${state.meta.name||'未命名连结者'}   /   LV ${currentLevels()}   /   ${new Date().toLocaleDateString('zh-CN')}`,54,114);
-const leftX=52,leftW=330,rightX=406,rightW=944;await drawArchiveImageCard(ctx,leftX,142,leftW,438,'人物影像档案',state.meta.name||'未登记人物',state.media?.portrait);await drawArchiveImageCard(ctx,leftX,598,leftW,366,'守护神影像档案',`${state.meta.mechName||state.slots['守护神']||'未登记机体'} [${state.careers[0]?.name||'未登记类别'}]`,state.media?.mecha);
-let by=982;let inner=drawArchiveBox(ctx,leftX,by,leftW,312,'摘要');ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';const text1=wrapCanvasText(ctx,state.meta.summary||state.meta.background||'暂无摘要。可在网页版人物资料中填写背景概述或详细背景。',leftW-36,8);for(const line of text1){ctx.fillText(line,leftX+18,inner);inner+=24}ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`已登记特技：${state.skills.length} 项`,leftX+18,by+286);ctx.fillText(`已登记物品：${state.items.length} 项`,leftX+162,by+286);
-let y=142;inner=drawArchiveBox(ctx,rightX,y,rightW,220,'基础档案');let cy=inner+2;const col1=rightX+18,col2=rightX+486,colw=360;cy=drawArchiveKV(ctx,col1,cy,'姓名',state.meta.name||'未登记',colw);cy=drawArchiveKV(ctx,col1,cy,'玩家',state.meta.player||'—',colw);cy=drawArchiveKV(ctx,col1,cy,'性别 / 年龄',`${state.meta.gender||'未知'} / ${state.meta.age||'—'}`,colw);cy=drawArchiveKV(ctx,col1,cy,'身份 / 所属',`${state.meta.identity||'—'} / ${state.meta.team||'—'}`,colw);let cy2=inner+2;cy2=drawArchiveKV(ctx,col2,cy2,'出身 / 经历',`${state.meta.origin||'—'} / ${state.meta.experience||'—'}`,colw);cy2=drawArchiveKV(ctx,col2,cy2,'目标 / 关系',`${state.meta.purpose||'—'} / ${state.meta.relationship||'—'}`,colw);cy2=drawArchiveKV(ctx,col2,cy2,'生活方式 / 住宅',`${state.meta.lifestyle||'—'} / ${state.meta.home||'—'}`,colw);cy2=drawArchiveKV(ctx,col2,cy2,'机体名 / 级别',`${state.meta.mechName||state.slots['守护神']||'—'} [${state.careers[0]?.name||'未登记类别'}]`,colw);
-
-y=382;inner=drawArchiveBox(ctx,rightX,y,rightW,270,'类别与属性');ctx.fillStyle='#2d241a';ctx.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`类别：${summary.careers.join(' / ')||'尚未登记'}`,rightX+18,inner+2);drawArchiveStatGrid(ctx,rightX+18,inner+26,rightW-36,ATTR.map(a=>[a,c.baseAttrs[a]+' / '+c.modAttrs[a]]),3);
-
-y=672;inner=drawArchiveBox(ctx,rightX,y,rightW,370,'战斗关键数值');drawArchiveStatGrid(ctx,rightX+18,inner+6,rightW-36,[['命中',c.battle.命中],['回避',c.battle.回避],['炮击',c.battle.炮击],['防壁',c.battle.防壁],['行动',c.battle.行动],['力场',c.battle.力场],['耐久',c.battle.耐久],['感应',c.battle.感应],['攻击',c.battle.攻击]],3);ctx.fillStyle='#7b6249';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`移动：战斗 ${c.mechaMov} / 全力 ${c.fullMov}    剩余常备点：${c.remainingReady}    剩余经验值：${c.remainingExp}`,rightX+18,y+350);
-
-y=1062;inner=drawArchiveBox(ctx,rightX,y,rightW,320,'关键装备');drawArchiveLines(ctx,rightX+18,inner+2,rightW-36,summary.equipmentLines,24,10);ctx.fillStyle='#7b6249';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`肉身防具：${state.slots['肉身防具']||'驾驶员制服'}    肉身主武装：${state.slots['肉身主武装']||'空手'}    肉身副武装：${state.slots['肉身副武装']||'空手'}`,rightX+18,y+294);
-
-y=1402;inner=drawArchiveBox(ctx,rightX,y,rightW,286,'加护与特技摘要');ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('加护',rightX+18,inner+4);ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';drawArchiveLines(ctx,rightX+18,inner+30,rightW-36,[(summary.selectedBlessings.join(' / ')||'未登记加护')],24,3);ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('特技摘要',rightX+18,inner+88);ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';const skillLines=summary.skillList.length?summary.skillList:[state.skills.length?`另有 ${state.skills.length} 项特技，详见网页版。`:'未登记特技'];drawArchiveLines(ctx,rightX+18,inner+114,rightW-36,skillLines,22,6);if(state.skills.length>summary.skillList.length){ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`其余 ${state.skills.length-summary.skillList.length} 项已省略，详见网页版`,rightX+18,y+253)}
-
-y=1710;inner=drawArchiveBox(ctx,rightX,y,rightW,200,'物品与连招概览');const itemLines=summary.itemList.length?summary.itemList:['未登记物品'];drawArchiveLines(ctx,rightX+18,inner+4,(rightW-36)/2-8,itemLines,22,6);ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('Combio / 仆从',rightX+rightW/2+6,inner+4);ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';const other=[`Combio：${state.combos.length} 组`,`仆从：${state.servants.length} 名`,`武装攻击：近主 ${c.attacks['主武装近']??0} / 近副 ${c.attacks['副武装近']??0} / 远主 ${c.attacks['主武装远']??0} / 远副 ${c.attacks['副武装远']??0}`];drawArchiveLines(ctx,rightX+rightW/2+6,inner+30,(rightW-36)/2-8,other,24,6);
-ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';let storyY=1940;let storyInner=drawArchiveBox(ctx,52,storyY,1298,storyHeight+5,'人物背景 · 档案附录');ctx.font='500 17px "Microsoft YaHei", "Noto Sans SC", sans-serif';for(let j=0;j<storyPairs.length;j++){ctx.fillStyle='#8a6c4c';ctx.font='700 19px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(storyPairs[j][0],74,storyInner+3);storyInner+=34;ctx.fillStyle='#2d241a';ctx.font='500 17px "Microsoft YaHei", "Noto Sans SC", sans-serif';for(const row of storyRows[j]){ctx.fillText(row,74,storyInner);storyInner+=27}storyInner+=31}ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';if(servantsForArchive.length){let appendixY=1980+storyHeight;drawArchiveBox(ctx,52,appendixY,1298,servantAppendHeight-30,'仆从影像与资料');let top=appendixY+66;for(let i=0;i<servantsForArchive.length;i++){const x=servantsForArchive[i],col=i%2,row=Math.floor(i/2),bx=70+col*638,by=top+row*176;drawRoundRect(ctx,bx,by,614,162,10,'#fffaf1','#cbb99b');drawRoundRect(ctx,bx+9,by+9,111,143,5,'#efe4d3','#c6b392');if(x.image){try{const im=await loadArchiveImage(x.image),ratio=Math.min(107/im.width,139/im.height);ctx.drawImage(im,bx+11+(107-im.width*ratio)/2,by+11+(139-im.height*ratio)/2,im.width*ratio,im.height*ratio)}catch{}}ctx.fillStyle='#463022';ctx.font='700 19px "Microsoft YaHei", sans-serif';ctx.fillText(String(x.name||'未命名仆从').slice(0,20),bx+136,by+34);ctx.font='500 15px "Microsoft YaHei", sans-serif';ctx.fillText(`等级 ${x.level||1} · FP ${x.fp||0} · HP ${x.hp||0} · EN ${x.en||0}`,bx+136,by+65);const desc=wrapCanvasText(ctx,x.story||x.powers||'暂无简介',450,3);desc.forEach((line,ix)=>ctx.fillText(line,bx+136,by+99+ix*22))}}ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('由钢神白卡网页版生成 · 建议结合完整网页与 JSON 存档保存详细数据',52,height-34);
-return canvas}
+function drawArchiveProfileEntry(ctx,x,y,w,label,value){
+ ctx.textBaseline='alphabetic';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillStyle='#896848';ctx.fillText(label,x,y+15);
+ ctx.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';const lines=wrapCanvasText(ctx,String(value||'—'),w-6,3000);
+ ctx.fillStyle='#2d241a';let lineY=y+43;for(const line of lines){ctx.fillText(line,x,lineY);lineY+=23}
+ const nextY=lineY+10;ctx.strokeStyle='#e5d8c6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,nextY-4);ctx.lineTo(x+w-10,nextY-4);ctx.stroke();return nextY+6
+}
+function drawArchiveParagraph(ctx,x,y,width,title,rows){
+ ctx.fillStyle='#896848';ctx.font='700 18px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(title,x,y+18);y+=43;
+ ctx.fillStyle='#2d241a';ctx.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';for(const line of rows){if(line)ctx.fillText(line,x,y);y+=26}
+ return y+18
+}
+async function buildArchiveCanvas(){
+ const summary=archiveSummary(),c=summary.calc,width=1400;
+ const canvas=document.createElement('canvas');const measure=canvas.getContext('2d');
+ measure.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const rightX=406,rightW=944,leftX=52,leftW=330,contentW=rightW-36;
+ const profileEntries=[
+  [['姓名',state.meta.name||'未登记'],['出身 / 经历',`${state.meta.origin||'—'} / ${state.meta.experience||'—'}`]],
+  [['玩家',state.meta.player||'—'],['目标 / 关系',`${state.meta.purpose||'—'} / ${state.meta.relationship||'—'}`]],
+  [['性别 / 年龄',`${state.meta.gender||'未知'} / ${state.meta.age||'—'}`],['生活方式 / 住宅',`${state.meta.lifestyle||'—'} / ${state.meta.home||'—'}`]],
+  [['身份 / 所属',`${state.meta.identity||'—'} / ${state.meta.team||'—'}`],['机体名 / 级别',`${state.meta.mechName||state.slots['守护神']||'—'} [${state.careers[0]?.name||'未登记类别'}]`]]
+ ];
+ const halfWidth=(contentW-24)/2;
+ function entryH(v){measure.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';return Math.max(1,wrapCanvasText(measure,String(v||'—'),halfWidth-6,3000).length)*23+65}
+ const profileRowHeights=profileEntries.map(row=>Math.max(...row.map(item=>entryH(item[1]))));
+ const backgroundPairs=[['背景概述',state.meta.summary||'尚未填写'],['详细信息',state.meta.background||'尚未填写']];
+ const storyRows=backgroundPairs.map(([,value])=>{measure.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';return wrapCanvasText(measure,value,contentW-24,3000)});
+ const profileTop=142,bodyIntro=66,backgroundHead=26;
+ const paragraphsHeight=storyRows.reduce((sum,rows)=>sum+43+rows.length*26+18,0);
+ const baseHeight=bodyIntro+profileRowHeights.reduce((a,b)=>a+b,0)+backgroundHead+paragraphsHeight+24;
+ const baseBottom=profileTop+baseHeight;
+ const categoryY=baseBottom+20,categoryH=270;
+ const combatY=categoryY+categoryH+20,combatH=370;
+ const equipmentY=combatY+combatH+20,equipmentH=320;
+ const skillsY=equipmentY+equipmentH+20,skillsH=350;
+ const itemsY=skillsY+skillsH+20,itemsH=200;
+ const servantsForArchive=state.servants.slice(0,20);
+ const appendixY=itemsY+itemsH+24,appendixH=servantsForArchive.length?90+Math.ceil(servantsForArchive.length/2)*176:0;
+ const height=Math.max(1750,appendixY+appendixH+70);
+ canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#efe4d3';ctx.fillRect(0,0,width,height);ctx.fillStyle='#f8f2e7';ctx.fillRect(24,24,width-48,height-48);
+ ctx.strokeStyle='#a68d6f';ctx.lineWidth=2;ctx.strokeRect(24,24,width-48,height-48);
+ ctx.fillStyle='#4e3828';ctx.font='700 42px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('钢神白卡 · 角色档案总览',52,84);
+ ctx.font='500 18px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillStyle='#7b6249';ctx.fillText(`FILE · ${state.meta.name||'未命名连结者'}   /   LV ${currentLevels()}   /   ${new Date().toLocaleDateString('zh-CN')}`,54,114);
+ // 人物、守护神影像保持在独立的固定比例档案盒里。
+ await drawArchiveImageCard(ctx,leftX,142,leftW,438,'人物影像档案',state.meta.name||'未登记人物',state.media?.portrait);
+ await drawArchiveImageCard(ctx,leftX,598,leftW,366,'守护神影像档案',`${state.meta.mechName||state.slots['守护神']||'未登记机体'} [${state.careers[0]?.name||'未登记类别'}]`,state.media?.mecha);
+ let leftY=982;let inner=drawArchiveBox(ctx,leftX,leftY,leftW,228,'档案索引');
+ const fileIndex=[`人物：${state.meta.name||'未登记'}`,`机体：${state.meta.mechName||state.slots['守护神']||'未登记'}`,`登记特技：${state.skills.length} 项`,`登记物品：${state.items.length} 项`,`仆从：${state.servants.length} 名`];
+ drawArchiveLines(ctx,leftX+18,inner+6,leftW-36,fileIndex,28,10);
+ // 基础档案：字段标题与实际文字分上下行，长字段自动换行并推进后续行。
+ inner=drawArchiveBox(ctx,rightX,profileTop,rightW,baseHeight,'基础档案');
+ let rowY=inner;const leftCell=rightX+18,rightCell=leftCell+halfWidth+24;
+ for(let i=0;i<profileEntries.length;i++){
+  const [l,r]=profileEntries[i];drawArchiveProfileEntry(ctx,leftCell,rowY,halfWidth,l[0],l[1]);drawArchiveProfileEntry(ctx,rightCell,rowY,halfWidth,r[0],r[1]);rowY+=profileRowHeights[i];
+ }
+ ctx.strokeStyle='#cdbba1';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(leftCell,rowY+3);ctx.lineTo(rightX+rightW-18,rowY+3);ctx.stroke();rowY+=backgroundHead;
+ for(let i=0;i<backgroundPairs.length;i++)rowY=drawArchiveParagraph(ctx,leftCell,rowY,contentW-24,backgroundPairs[i][0],storyRows[i]);
+ // 导出只显示属性补正值，不显示基础属性值，规则计算保持原样。
+ inner=drawArchiveBox(ctx,rightX,categoryY,rightW,categoryH,'类别与属性补正');
+ ctx.fillStyle='#65513c';ctx.font='500 16px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const careerText=`类别：${summary.careers.join(' / ')||'尚未登记'}`;
+ const careerRows=wrapCanvasText(ctx,careerText,rightW-36,2);careerRows.forEach((txt,i)=>ctx.fillText(txt,rightX+18,inner+2+i*20));
+ drawArchiveStatGrid(ctx,rightX+18,inner+49,rightW-36,ATTR.map(a=>[a,c.modAttrs[a]]),3);
+ inner=drawArchiveBox(ctx,rightX,combatY,rightW,combatH,'战斗关键数值');
+ drawArchiveStatGrid(ctx,rightX+18,inner+6,rightW-36,[['命中',c.battle.命中],['回避',c.battle.回避],['炮击',c.battle.炮击],['防壁',c.battle.防壁],['行动',c.battle.行动],['力场',c.battle.力场],['耐久',c.battle.耐久],['感应',c.battle.感应],['攻击',c.battle.攻击]],3);
+ ctx.fillStyle='#7b6249';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`移动：战斗 ${c.mechaMov} / 全力 ${c.fullMov}    剩余常备点：${c.remainingReady}    剩余经验值：${c.remainingExp}`,rightX+18,combatY+350);
+ inner=drawArchiveBox(ctx,rightX,equipmentY,rightW,equipmentH,'关键装备');
+ drawArchiveLines(ctx,rightX+18,inner+2,rightW-36,summary.equipmentLines,24,10);
+ ctx.fillStyle='#7b6249';ctx.font='500 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const humanGear=`肉身防具：${state.slots['肉身防具']||'驾驶员制服'}    肉身主武装：${state.slots['肉身主武装']||'空手'}    肉身副武装：${state.slots['肉身副武装']||'空手'}`;
+ wrapCanvasText(ctx,humanGear,rightW-36,2).forEach((txt,i)=>ctx.fillText(txt,rightX+18,equipmentY+280+i*19));
+ inner=drawArchiveBox(ctx,rightX,skillsY,rightW,skillsH,'加护与特技摘要');
+ ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('加护',rightX+18,inner+4);
+ ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const blessings=wrapCanvasText(ctx,summary.selectedBlessings.join(' / ')||'未登记加护',rightW-36,4);
+ blessings.forEach((txt,i)=>ctx.fillText(txt,rightX+18,inner+30+i*23));
+ const skillHeaderY=inner+34+Math.max(blessings.length,1)*23;
+ ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('特技摘要',rightX+18,skillHeaderY);
+ ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const skillLines=summary.skillList.length?summary.skillList:[state.skills.length?`另有 ${state.skills.length} 项特技，详见网页版。`:'未登记特技'];
+ let skillEnd=drawArchiveLines(ctx,rightX+18,skillHeaderY+27,rightW-36,skillLines,22,6);
+ if(state.skills.length>summary.skillList.length){ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText(`其余 ${state.skills.length-summary.skillList.length} 项已省略，详见网页版`,rightX+18,Math.min(skillsY+skillsH-16,skillEnd+5))}
+ inner=drawArchiveBox(ctx,rightX,itemsY,rightW,itemsH,'物品与连招概览');
+ const itemLines=summary.itemList.length?summary.itemList:['未登记物品'];drawArchiveLines(ctx,rightX+18,inner+4,(rightW-36)/2-8,itemLines,22,6);
+ ctx.fillStyle='#8a6c4c';ctx.font='600 14px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('Combio / 仆从',rightX+rightW/2+6,inner+4);
+ ctx.fillStyle='#2d241a';ctx.font='500 15px "Microsoft YaHei", "Noto Sans SC", sans-serif';
+ const other=[`Combio：${state.combos.length} 组`,`仆从：${state.servants.length} 名`,`武装攻击：近主 ${c.attacks['主武装近']??0} / 近副 ${c.attacks['副武装近']??0} / 远主 ${c.attacks['主武装远']??0} / 远副 ${c.attacks['副武装远']??0}`];
+ drawArchiveLines(ctx,rightX+rightW/2+6,inner+30,(rightW-36)/2-8,other,24,6);
+ if(servantsForArchive.length){
+  drawArchiveBox(ctx,52,appendixY,1298,appendixH,'仆从影像与资料');let top=appendixY+66;
+  for(let i=0;i<servantsForArchive.length;i++){
+   const x=servantsForArchive[i],col=i%2,row=Math.floor(i/2),bx=70+col*638,by=top+row*176;
+   drawRoundRect(ctx,bx,by,614,162,10,'#fffaf1','#cbb99b');drawRoundRect(ctx,bx+9,by+9,111,143,5,'#efe4d3','#c6b392');
+   if(x.image){try{const im=await loadArchiveImage(x.image),ratio=Math.min(107/im.width,139/im.height);ctx.drawImage(im,bx+11+(107-im.width*ratio)/2,by+11+(139-im.height*ratio)/2,im.width*ratio,im.height*ratio)}catch{}}
+   ctx.fillStyle='#463022';ctx.font='700 19px "Microsoft YaHei", sans-serif';ctx.fillText(String(x.name||'未命名仆从').slice(0,20),bx+136,by+34);
+   ctx.font='500 15px "Microsoft YaHei", sans-serif';ctx.fillText(`等级 ${x.level||1} · FP ${x.fp||0} · HP ${x.hp||0} · EN ${x.en||0}`,bx+136,by+65);
+   const desc=wrapCanvasText(ctx,x.story||x.powers||'暂无简介',450,3);desc.forEach((line,ix)=>ctx.fillText(line,bx+136,by+99+ix*22))
+  }
+ }
+ ctx.fillStyle='#7b6249';ctx.font='500 13px "Microsoft YaHei", "Noto Sans SC", sans-serif';ctx.fillText('由钢神白卡网页版生成 · 建议结合完整网页与 JSON 存档保存详细数据',52,height-34);
+ return canvas
+}
 async function exportArchiveImage(){const canvas=await buildArchiveCanvas();const filename=`${state.meta.name||'钢神人物'}-档案总览.png`;if(canvas.toBlob){canvas.toBlob(blob=>{if(!blob){download(filename,canvas.toDataURL('image/png'),'image/png');return}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1600)},'image/png')}else{download(filename,canvas.toDataURL('image/png'),'image/png')}toast('档案总览图已开始导出')}
 // Fully offline, multipage A4 PDF; rasterises the same archive used by PNG export.
 // Pages are independent JPEG XObjects embedded into a standards-compliant PDF 1.4.
