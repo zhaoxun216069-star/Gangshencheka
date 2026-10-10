@@ -190,3 +190,43 @@ body.night .archive-current{color:#d5ae7f}
 .item-record .item-kind-suffix{display:inline-flex;align-items:center;justify-content:center;max-width:100%;padding:3px 9px;border:1px solid var(--line);border-radius:3px;background:color-mix(in srgb,var(--surface2) 73%,#d3b28a 27%);color:var(--accent);font-size:11px;font-weight:600;line-height:1.55;white-space:normal;overflow-wrap:anywhere;letter-spacing:.02em}
 .item-record-heading .item-record-identity{min-width:0}
 @media(max-width:450px){.item-record .item-kind-suffix{font-size:11px;padding:2px 7px}}
+
+/* 角色总览 · 战场数据表格 / Excel 行复制 */
+.standing-description{margin:0 0 13px;line-height:1.7}
+.standing-toolbar{margin-bottom:12px}
+.standing-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.standing-table{min-width:980px;width:100%;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+.standing-table th,.standing-table td{text-align:center;vertical-align:middle;padding:12px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+.standing-table thead th{font-size:12px;letter-spacing:0}
+.standing-table tbody tr:last-child th,.standing-table tbody tr:last-child td{border-bottom:0}
+.standing-table .standing-name{text-align:left;color:var(--text);min-width:188px;max-width:280px}
+.standing-name-wrap{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.standing-name-wrap span{display:block;overflow:hidden;text-overflow:ellipsis;max-width:190px;font-weight:700}
+.standing-table .standing-row-copy{flex:none;font-size:11px;min-height:32px;white-space:nowrap;line-height:1.2;padding:5px 8px;border-color:var(--line)}
+.standing-table .standing-data-cell{font-weight:650;color:var(--text)}
+.standing-table .standing-code{display:inline-block;padding:3px 8px;background:var(--surface2);border:1px solid var(--line);border-radius:5px;color:var(--accent);font-weight:700}
+.standing-table .standing-status-cell{min-width:70px}
+.standing-footnote{margin:10px 0 0;line-height:1.65}
+@media(max-width:550px){.standing-table th,.standing-table td{padding:9px 7px}.standing-table .standing-row-copy{min-height:40px;font-size:12px}.standing-toolbar .btn{width:100%}}
+
+/* Guardian dossier: read-only display, consistent with the bordered personnel record. */
+.guardian-sheet{gap:14px;min-width:0;min-height:370px}
+.guardian-sheet:after{content:'GUARDIAN FILE';font-size:48px;right:-18px;bottom:40px}
+.guardian-title{display:flex;flex-direction:column;gap:8px;padding:9px 0 15px;border-bottom:2px solid #a48c6e;position:relative;z-index:1;min-width:0}
+.guardian-title small{color:#8f7558;font-size:11px;font-weight:650;letter-spacing:1.7px}
+.guardian-title strong{font:650 clamp(24px,2.25vw,36px)/1.4 'Noto Serif SC','Songti SC',serif;color:#493326;overflow-wrap:anywhere}
+.guardian-title strong span{font-size:.63em;font-weight:500;color:#886b4e;white-space:normal}
+.guardian-registered{position:relative;z-index:1;padding:10px 14px;border-left:3px solid #b69b77;background:#f3eade;color:#6a5139;margin:0}
+.guardian-registered b{color:#402f22}
+.guardian-section-label{font:650 14px 'Noto Serif SC','Songti SC',serif;color:#6a4d33;letter-spacing:1px;padding:5px 0 0;position:relative;z-index:1}
+.guardian-facts{gap:16px 24px;padding:15px 0 5px}
+.guardian-story{margin-top:4px}
+.guardian-story p{max-height:none;overflow:visible}
+.guardian-footnote{line-height:1.6!important}
+body.night .guardian-title{border-color:#766044}
+body.night .guardian-title strong{color:#e6d4ba}
+body.night .guardian-title small,body.night .guardian-title strong span{color:#c4a47f}
+body.night .guardian-registered{background:#3a3026;color:#d3bfa5;border-left-color:#9d7c55}
+body.night .guardian-registered b,body.night .guardian-section-label{color:#edd3b0}
+@media(max-width:820px){.guardian-sheet{min-height:0}.guardian-title strong{font-size:clamp(23px,5vw,32px)}}
+@media(max-width:470px){.guardian-sheet{padding:19px 17px!important;gap:12px}.guardian-facts{gap:10px 14px}.guardian-facts strong{font-size:14px}.guardian-title{padding-top:6px}.guardian-title strong{font-size:24px}}

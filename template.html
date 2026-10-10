@@ -1,6 +1,17 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes"><meta name="theme-color" content="#0b111e"><meta name="description" content="钢之守护神 RPG 人物白卡网页版，离线角色管理、战斗计算、装备、特技、机器人指令导出。"><title>钢神白卡 · 跨端角色管理</title><style>/*CSS_BLOCK*/</style></head><body><div class="layout"><aside class="sidebar"><div class="brand"><div class="mark">◇</div><div><strong>钢神白卡</strong><small>GUARDIAN DOSSIER</small></div></div><nav id="navigation" class="navlist" aria-label="页面导航"></nav><div class="side-bottom"><div id="savestatus"><b>●</b> 本地自动保存</div><div style="margin-top:8px" id="small-name">未命名连结者</div><div style="margin-top:10px">DATA SOURCE · 25.03.22-4</div></div></aside><main class="main"><header class="topbar"><div><div class="crumb">TACTICAL / CHARACTER SYSTEM</div><h1 id="page-title">角色总览</h1></div><div class="topbuttons"><button class="btn ghost" data-action="theme">☼ 主题</button><button class="btn ghost" data-action="new">＋ 创建人物</button><button class="btn" data-go="export">⇧ 备份 / 导出</button></div></header><div id="page-content"></div><footer class="footer">钢之守护神 RPG · 基于用户提供的「钢神团白卡 25.03.22-4」重构 · 纯静态浏览器端实现<br>不同设备的浏览器不会自动同步数据，请使用 JSON 存档迁移。特殊规则与复杂增益请结合原表复核。</footer></main></div><input type="file" id="import-file" accept=".json,application/json" hidden>
 <input type="file" id="image-portrait" accept="image/png,image/jpeg,image/webp,image/gif,image/*" hidden>
 <input type="file" id="image-mecha" accept="image/png,image/jpeg,image/webp,image/gif,image/*" hidden><script>
+(function(){
+  function showStartupIssue(event){
+    const content=document.getElementById('page-content');
+    if(!content || content.innerHTML.trim())return;
+    content.innerHTML='<section class="panel" role="alert"><h2>档案页面未能完成加载</h2><p>浏览器在初始化人物资料时遇到错误。请先确认使用的是最新的 index.html，刷新重试；已保存的数据不会因为此提示被主动清除。</p><p class="mini">如果问题持续，请保留原页面和本地人物 JSON 备份，以便定位具体错误。</p></section>';
+    console.error('钢神白卡初始化失败',event?.message||event?.reason||event);
+  }
+  window.addEventListener('error',showStartupIssue);
+  window.addEventListener('unhandledrejection',showStartupIssue);
+})();
+</script><script>
 const DB=/*JSON_BLOCK*/;
 </script><script>
 /*JS_BLOCK*/
